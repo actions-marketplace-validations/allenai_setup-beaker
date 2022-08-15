@@ -7,9 +7,6 @@ inputs:
   token:
     description: Your Beaker token
     required: true
-  github_token:
-    description: Your GitHub token
-    required: true
   workspace:
     description: The default workspace to use
     required: false
@@ -27,43 +24,42 @@ runs:
 
         mkdir -p "$HOME/bin"
         TMP=${{ runner.temp }}
-        echo ${{ inputs.github_token }} | gh auth login --with-token
-
-        # Find available versions.
-        echo "Available Beaker versions:"
-        echo
-        gh api /repos/allenai/beaker/deployments | jq -cr '[.[] | select(.production_environment)][] | [.ref, .created_at] | @tsv' > $TMP/beaker-versions.txt
-        cat $TMP/beaker-versions.txt | awk '{printf("%-15s %s\n", $1, $2)}'
-
-        VERSION=$(head -1 $TMP/beaker-versions.txt | awk '{print $1}')
-        echo "Downloading Beaker CLI version $VERSION."
-        echo
+        
+        VERSION=$(curl --silent https://beaker.org/api/v3/release | jq -r '.version')
+        echo Downloading Beaker CLI version $VERSION.
 
         ARCH=$(uname -p)
         OS=$(uname -s)
-        
-        # Detect architecture and OS.
         if [[ $ARCH == "arm" && $OS == "Darwin" ]]; then
           # macOS on M1 chipsets
-          PATTERN='beaker-cli-darwin-arm64-v*.tar.gz'
+          ARCH=arm64; OS=darwin
         elif [[ $ARCH == "i386" && $OS == "Darwin" ]]; then
           # macOS on Intel chipsets
-          PATTERN='beaker-cli-darwin-amd64-v*.tar.gz'
+          ARCH=amd64; OS=darwin
         elif [[ $ARCH == "x86_64" && $OS == "Linux" ]]; then
           # Linux on AMD64 chipsets
-          PATTERN='beaker-cli-linux-amd64-v*.tar.gz'
+          ARCH=amd64; OS=linux
         else
-          echo "Unrecognized OS-Architecture combination:"
-          echo "ARCH=$ARCH"
-          echo "OS=$OS"
+          echo Unrecognized OS-Architecture combination:
+          echo ARCH=$ARCH
+          echo OS=$OS
           exit 1
         fi
-
-        # Download the release.
+        
+        PATTERN="beaker-cli-$OS-$ARCH-$VERSION.tar.gz"
         mkdir $TMP/assets/
-        gh --repo allenai/beaker release download -p $PATTERN -D $TMP/assets/ $VERSION
-        tar -C $HOME/bin -zxf $TMP/assets/*.tar.gz
-
+        curl --silent \
+            --connect-timeout 5 \
+            --max-time 10 \
+            --retry 5 \
+            --retry-delay 0 \
+            --retry-max-time 40 \
+            --output $TMP/assets/$PATTERN \
+            https://beaker.org/api/v3/release/cli\?os\=$OS\&arch\=$ARCH
+        
+        tar -zxf $TMP/assets/$PATTERN -C $HOME/bin ./beaker
+        $HOME/bin/beaker --version
+        
         # Add to path.
         echo "$HOME/bin" >> "$GITHUB_PATH"
 

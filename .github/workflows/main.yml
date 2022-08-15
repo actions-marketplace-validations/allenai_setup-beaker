@@ -49,7 +49,6 @@ jobs:
         with:
           token: ${{ secrets.BEAKER_TOKEN }}
           workspace: ${{ env.BEAKER_WORKSPACE }}
-          github_token: ${{ secrets.GH_TOKEN }}
 
       - name: Setup Beaker (no workspace)
         id: setup-beaker
