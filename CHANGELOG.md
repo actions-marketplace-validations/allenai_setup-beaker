@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v2.0.0](https://github.com/allenai/setup-beaker/releases/tag/v2.0.0) - 2022-08-15
 
+- Removed usage of [deprecated set-output](https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/).
+
 ### Changed
 
 - Updated for new Beaker release process. Input `github_token` is no longer required.
-
-- Removed usage of [deprecated set-output](https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/).
 
 ## [v1.1.1](https://github.com/allenai/setup-beaker/releases/tag/v1.1.1) - 2022-06-27
 
