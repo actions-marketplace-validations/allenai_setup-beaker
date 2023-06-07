@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v2.0.1](https://github.com/allenai/setup-beaker/releases/tag/v2.0.1) - 2023-06-07
+
 ## [v2.0.0](https://github.com/allenai/setup-beaker/releases/tag/v2.0.0) - 2022-08-15
 
 - Removed usage of [deprecated set-output](https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/).
